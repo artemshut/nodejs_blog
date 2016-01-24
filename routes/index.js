@@ -1,28 +1,35 @@
-// var checkAuth = require('../middleware/checkAuth');
-
-// module.exports = function(app) {
-
-//     app.get('/', require('./frontpage').get);
-
-//     app.get('/login', require('./login').get);
-//     app.post('/login', require('./login').post);
-
-//     app.post('/logout', require('./logout').post);
-
-//     // app.get('/chat', checkAuth, require('./chat').get);
-
-// };
-
-
 var express = require('express');
 var passport = require('passport');
 var User = require('../models/user');
 var router = express.Router();
 var log = require('../libs/log')(module);
+var PostProvider = require('../providers/postProvider').PostProvider;
+var postProvider = new PostProvider('localhost', 27017);
 
+router.get('/', function(req, res){
+  postProvider.findAll(function(error, docs){
+      res.render('posts.jade', {
+            title : 'Blog',
+            posts : docs
+          }
+      );
+  })
+});
 
-router.get('/', function (req, res) {
-    res.render('index', { user : req.user });
+router.get('/posts/new', function(req, res) {
+  res.render('post_new.jade', {
+      title: 'New Post'
+    }
+  );
+});
+
+router.post('/posts/new', function(req, res){
+    postProvider.save({
+        title: req.param('title'),
+        body: req.param('body')
+    }, function(error, docs) {
+        res.redirect('/')
+    });
 });
 
 router.get('/register', function(req, res) {
@@ -53,10 +60,6 @@ router.post('/login', passport.authenticate('local'), function(req, res) {
 router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/');
-});
-
-router.get('/ping', function(req, res){
-    res.status(200).send("pong!");
 });
 
 module.exports = router;

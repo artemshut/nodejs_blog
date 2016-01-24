@@ -2,6 +2,7 @@ var User = require('../models/user').User;
 var HttpError = require('../error').HttpError;
 var AuthError = require('../models/user').AuthError;
 var async = require('async');
+var log = require('../libs/log')(module);
 
 exports.get = function(req, res) {
     res.render('login');
@@ -10,7 +11,7 @@ exports.get = function(req, res) {
 exports.post = function(req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
-
+    
     User.authorize(username, password, function(err, user) {
         if (err) {
             if (err instanceof AuthError) {

@@ -1,0 +1,8 @@
+h1= title
+#posts
+    - each post in posts
+      div.post
+        div.created_at= post.created_at
+        div.title 
+            a(href="/blog/"+post._id)!= post.title
+        div.body= post.body
